@@ -1,0 +1,13 @@
+{
+  "name": "citycape-store",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.19.2",
+    "twilio": "^5.1.1"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
