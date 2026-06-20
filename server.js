@@ -4,7 +4,18 @@ const twilio = require('twilio');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+// This makes a beautiful homepage visible to the entire world!
+app.get('/', (req, res) => {
+    res.send(`
+        <div style="font-family: sans-serif; text-align: center; margin-top: 100px;">
+            <h1 style="color: #2b6cb0; font-size: 3rem;">Welcome to Citycape Store! 🚀</h1>
+            <p style="color: #4a5568; font-size: 1.2rem;">Our automated WhatsApp systems are fully active worldwide.</p>
+            <div style="display: inline-block; background: #48bb78; color: white; padding: 10px 20px; border-radius: 5px; margin-top: 20px; font-weight: bold;">
+                System Status: ONLINE
+            </div>
+        </div>
+    `);
+});
 const accountSid = process.env.TWILIO_ACCOUNT_SID || 'AC865402ad4702587cc3dacc31343d09d2';
 const authToken = process.env.TWILIO_AUTH_TOKEN || '892134a7e2d69bacb23c0463095ca45f';
 const whatsappFrom = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886';
