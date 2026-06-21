@@ -19,7 +19,7 @@ app.get('/send-reminder', async (req, res) => {
     try {
         const message = await client.messages.create({
             from: whatsappFrom,
-            to: 'whatsapp:+254701237616',
+            to: 'whatsapp:+254758509154',
             body: 'Hello from Citycape Store! Your automated reminder system is officially live.'
         });
 
