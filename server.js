@@ -24,11 +24,11 @@ const client = twilio(accountSid, authToken);
 
 app.get('/send-reminder', async (req, res) => {
     try {
-        const message = await client.messages.create({
+     const message = await client.messages.create({
             from: whatsappFrom,
-            to: 'whatsapp:+254701237616', 
-            contentSid: 'HXb5993a404983fb0dc6ea42a1ebed6034',
-            contentVariables: JSON.stringify({ "1": "12/1 at 3pm" })
+            to: 'whatsapp:+254701237616',
+            body: 'Hello from Citycape Store! Your automated reminder system is officially live.'
+        });
         });
         console.log('Automated message sent! SID:', message.sid);
         res.send('🚀 Reminder message sent successfully!');
