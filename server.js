@@ -4,14 +4,14 @@ const twilio = require('twilio');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+app.use(express.static('public'));
 const accountSid = process.env.TWILIO_ACCOUNT_SID || 'AC865402ad4702587cc3dacc31343d09d2';
 const authToken = process.env.TWILIO_AUTH_TOKEN || '892134a7e2d69bacb23c0463095ca45f';
 const whatsappFrom = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886';
 
 const client = twilio(accountSid, authToken);
 
-app.get('/', (req, res) => {
+
     res.send('<h1>System Status: Live 🚀</h1>');
 });
 
