@@ -1,0 +1,17 @@
+{
+  "name": "citycape-store",
+  "version": "1.0.0",
+  "description": "Notification hub for Citycape Store",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "twilio": "^4.23.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
