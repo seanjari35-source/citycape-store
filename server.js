@@ -26,7 +26,7 @@ const pendingVerifications = new Map();
 const generateCode = () => String(Math.floor(10000000 + Math.random() * 90000000));
 
 // --- ADMIN HUB ROUTE ---
-app.get('/admin', (req, res) => {
+app.get('/api/admin/pending', (req, res) => {
     const key = req.query.key;
     if (key !== ADMIN_KEY) {
         return res.status(403).send('<h1>Access Denied: Invalid Admin Key</h1>');
