@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // Configurations
 const ADMIN_KEY = process.env.ADMIN_KEY || 'citycape2026';
-const STORE_WHATSAPP = process.env.STORE_WHATSAPP || '254700000000';
+const STORE_WHATSAPP = process.env.STORE_WHATSAPP || '254758509154';
 
 app.use(cors());
 app.use(bodyParser.json());
