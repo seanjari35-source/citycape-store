@@ -99,9 +99,9 @@ app.get('/api/admin/pending', (req, res) => {
 app.get('/', (req, res) => {
     const activePhone = req.query.phone || '';
     let waLink = '';
-    
+    ring
     if (activePhone && pendingVerifications.has(activePhone)) {
-        const customMessage = encodeURIComponent(`Hello Citycapestore! I am registering my account. Please provide my verification code for phone number: ${activePhone}`);
+  const msg=encodeURIComponent(`Hi Citycape 👋 Please send me my 8-digit verification code for +${phone} 🙏`);   
         waLink = `https://wa.me/${STORE_WHATSAPP}?text=${customMessage}`;
     }
 
