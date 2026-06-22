@@ -35,8 +35,7 @@ if (!twilioReady) {
 const client = twilioReady ? twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) : null;
 
 const otpStore = new Map();
-const generateCode = () => String(Math.floor(100000 + Math.random() * 900000));
-
+const generateCode = () => String(Math.floor(10000000 + Math.random() * 90000000));
 app.post('/api/send-otp', async (req, res) => {
   const { phone } = req.body;
   if (!phone || !/^254(7|1)\d{8}$/.test(phone)) {
