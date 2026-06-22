@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,13 +12,8 @@ const STORE_WHATSAPP = process.env.STORE_WHATSAPP || '254700000000';
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-    secret: 'citycape-secret-key',
-    resave: false,
-    saveUninitialized: true
-}));
 
-// In-memory store for pending verifications
+// In-memory store for pending verifications and active UI steps
 const pendingVerifications = new Map();
 
 // 8-Digit Code Generator
@@ -51,6 +45,7 @@ app.get('/api/admin/pending', (req, res) => {
         <head>
             <title>Citycape Store - Admin Hub</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta http-equiv="refresh" content="30">
             <style>
                 body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
                 .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -62,7 +57,7 @@ app.get('/api/admin/pending', (req, res) => {
         <body>
             <div class="container">
                 <h1>Citycape Store Notification Hub</h1>
-                <p>Active Pending Verification Codes</p>
+                <p>Active Pending Verification Codes (Auto-refreshes every 30s)</p>
                 <table>
                     <thead>
                         <tr>
@@ -84,6 +79,15 @@ app.get('/api/admin/pending', (req, res) => {
 
 // --- FRONTEND STOREFRONT ROUTE ---
 app.get('/', (req, res) => {
+    // Check if user just submitted a phone number via URL query
+    const activePhone = req.query.phone || '';
+    let waLink = '';
+    
+    if (activePhone && pendingVerifications.has(activePhone)) {
+        const customMessage = encodeURIComponent(`Hello Citycapestore! I am registering my account. Please provide my verification code for phone number: ${activePhone}`);
+        waLink = `https://wa.me/${STORE_WHATSAPP}?text=${customMessage}`;
+    }
+
     res.send(`
         <!DOCTYPE html>
         <html>
@@ -128,17 +132,18 @@ app.get('/', (req, res) => {
                     
                     <form action="/request-otp" method="POST">
                         <div class="step-title">Step 1: Enter WhatsApp Number</div>
-                        <input type="text" name="phone" placeholder="e.g. 254700000000" required />
+                        <input type="text" name="phone" value="${activePhone}" placeholder="e.g. 254700000000" required />
                         <button type="submit" class="btn-primary">Generate My Code</button>
                     </form>
 
-                    ${req.session.step2 ? `
+                    ${activePhone ? `
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
                         <div class="step-title">Step 2: Get Your Code</div>
-                        <a href="${req.session.waLink}" target="_blank" class="btn-whatsapp">Open WhatsApp to Request</a>
+                        <a href="${waLink}" target="_blank" class="btn-whatsapp">Open WhatsApp to Request</a>
                         
                         <form action="/verify-otp" method="POST">
                             <div class="step-title">Step 3: Enter 8-Digit Code</div>
+                            <input type="hidden" name="phone" value="${activePhone}" />
                             <input type="text" name="otp" placeholder="Enter 8-digit code" required />
                             <button type="submit" class="btn-primary" style="background:#222;">Verify & Enter Store</button>
                         </form>
@@ -155,37 +160,28 @@ app.post('/request-otp', (req, res) => {
     let { phone } = req.body;
     phone = phone.replace(/[^0-9]/g, '');
     
+    if (!phone) return res.redirect('/');
+
     const code = generateCode();
     pendingVerifications.set(phone, {
         code: code,
         timestamp: Date.now()
     });
-
-    const customMessage = encodeURIComponent(`Hello Citycapestore! I am registering my account. Please provide my verification code for phone number: ${phone}`);
     
-    req.session.step2 = true;
-    req.session.waLink = `https://wa.me/${STORE_WHATSAPP}?text=${customMessage}`;
-    
-    res.redirect('/');
+    // Pass user phone back via query parameter to show Step 2 & 3 safely without sessions
+    res.redirect(`/?phone=${phone}`);
 });
 
 // --- ROUTE: VERIFY OTP ---
 app.post('/verify-otp', (req, res) => {
-    const { otp } = req.body;
-    let verified = false;
+    const { otp, phone } = req.body;
+    const record = pendingVerifications.get(phone);
 
-    pendingVerifications.forEach((data, phone) => {
-        if (data.code === otp.trim()) {
-            verified = true;
-            pendingVerifications.delete(phone);
-        }
-    });
-
-    if (verified) {
-        req.session.destroy();
+    if (record && record.code === otp.trim()) {
+        pendingVerifications.delete(phone); // Clear match
         res.send('<h2>Success! Account verified and created. Welcome to Citycapestore!</h2><br><a href="/">Back to Store</a>');
     } else {
-        res.send('<h2>Invalid 8-digit verification code. Please check with admin or retry.</h2><br><a href="/">Try Again</a>');
+        res.send('<h2>Invalid 8-digit verification code. Please check with admin or retry.</h2><br><a href="/?phone=' + phone + '">Try Again</a>');
     }
 });
 
